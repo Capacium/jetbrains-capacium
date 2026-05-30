@@ -1,0 +1,14 @@
+<idea-plugin>
+    <!-- Optional dependency config: active only when YAML plugin is present -->
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection
+            language="yaml"
+            displayName="capability.yaml v1.0 validation"
+            groupName="Capacium"
+            shortName="CapaciumCapabilityYaml"
+            enabledByDefault="true"
+            level="ERROR"
+            implementationClass="xyz.capacium.plugin.validator.CapabilityYamlInspection"
+        />
+    </extensions>
+</idea-plugin>
