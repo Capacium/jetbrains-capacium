@@ -1,13 +1,5 @@
-node_modules/
-.next/
-dist/
-build/
-out/
-*.vsix
 .gradle/
-__pycache__/
-*.pyc
-.env
-.env.*
-.DS_Store
-site/
+build/
+.idea/
+*.iml
+out/

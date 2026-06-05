@@ -1,91 +1,23 @@
 <idea-plugin>
-    <id>xyz.capacium.plugin</id>
+    <id>xyz.capacium.jetbrains-capacium</id>
     <name>Capacium</name>
-    <version>0.1.0</version>
-    <vendor email="typelicious@gmail.com" url="https://capacium.xyz">Capacium Project</vendor>
-
+    <vendor email="hello@capacium.xyz" url="https://capacium.xyz">Capacium</vendor>
     <description><![CDATA[
-        <b>Capacium</b> — AI capability manager for JetBrains IDEs.<br/><br/>
-        Search, browse, and install AI capabilities (skills, MCP servers, bundles, workflows)
-        from the Capacium Exchange directly from your IDE.<br/><br/>
-        Features:<ul>
-            <li>🔍 Search panel — live search of 300k+ capabilities</li>
-            <li>⚡ One-click install via the bundled <code>cap</code> CLI</li>
-            <li>✅ <code>capability.yaml</code> inline validation with fix hints</li>
-            <li>📋 Installed capabilities sidebar</li>
-            <li>🔌 MCP server kind support — see exposed tools</li>
-        </ul>
+        Search and install AI agent capabilities from the Capacium marketplace.
+        Browse skills, MCP servers, workflows, and tools — with trust state verification.
     ]]></description>
 
-    <change-notes><![CDATA[
-        <b>0.1.0</b> — Initial release. Search panel, install action, capability.yaml validation.
-    ]]></change-notes>
-
-    <!-- IntelliJ Platform 2024.1+ -->
-    <idea-version since-build="241" until-build="251.*"/>
-
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="capacium-yaml.xml">org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Tool window: Capacium sidebar -->
-        <toolWindow
-            id="Capacium"
-            displayName="Capacium"
-            anchor="right"
-            factoryClass="xyz.capacium.plugin.toolwindow.CapaciumToolWindowFactory"
-            icon="/icons/capacium.svg"
-        />
-
-        <!-- Notification group -->
-        <notificationGroup
-            id="Capacium.Notifications"
-            displayType="BALLOON"
-        />
-
-        <!-- App-level service: Exchange HTTP client -->
-        <applicationService
-            serviceInterface="xyz.capacium.plugin.services.ExchangeService"
-            serviceImplementation="xyz.capacium.plugin.services.ExchangeServiceImpl"
-        />
+        <toolWindow id="Capacium" anchor="right" icon="AllIcons.Actions.Search"
+                    factoryClass="xyz.capacium.CapaciumToolWindowFactory"/>
     </extensions>
 
     <actions>
-        <!-- Main menu: Tools > Capacium -->
-        <group id="Capacium.ToolsMenu" text="Capacium" popup="true">
+        <action id="Capacium.SearchAction" class="xyz.capacium.SearchAction"
+                text="Search Capacium Marketplace" description="Search the Capacium marketplace">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <action
-                id="Capacium.SearchAction"
-                class="xyz.capacium.plugin.actions.SearchCapabilitiesAction"
-                text="Search Capabilities…"
-                description="Search the Capacium Exchange for AI capabilities"
-                icon="AllIcons.Actions.Search"
-            />
-            <action
-                id="Capacium.InstallAction"
-                class="xyz.capacium.plugin.actions.InstallCapabilityAction"
-                text="Install Capability…"
-                description="Install a capability by name (owner/name[@version])"
-                icon="AllIcons.Actions.Download"
-            />
-            <separator/>
-            <action
-                id="Capacium.ValidateAction"
-                class="xyz.capacium.plugin.actions.ValidateCapabilityYamlAction"
-                text="Validate capability.yaml"
-                description="Validate the capability.yaml in the current editor"
-                icon="AllIcons.Actions.Checked"
-            />
-        </group>
-
-        <!-- Editor context menu for capability.yaml -->
-        <action
-            id="Capacium.ValidateContextMenu"
-            class="xyz.capacium.plugin.actions.ValidateCapabilityYamlAction"
-            text="Validate with Capacium"
-            description="Validate this capability.yaml against the v1.0 spec"
-        >
-            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
     </actions>
 </idea-plugin>
