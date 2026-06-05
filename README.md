@@ -14,8 +14,9 @@ Search and install AI agent capabilities from the Capacium marketplace in any Je
 From JetBrains Marketplace (coming soon) or build from source:
 
 ```bash
-./gradlew buildPlugin
+gradle buildPlugin
 ```
+*(Gradle 8.7+ required. Run `gradle wrapper` once to generate `./gradlew`.)*
 
 ## IDE Support
 
