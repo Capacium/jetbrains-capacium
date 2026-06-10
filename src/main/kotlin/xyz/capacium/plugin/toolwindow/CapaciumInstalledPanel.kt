@@ -12,6 +12,36 @@ import javax.swing.*
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 
+private val KIND_ICONS = mapOf(
+    "skill"          to "⚡",
+    "mcp-server"     to "🔌",
+    "bundle"         to "📦",
+    "tool"           to "🔧",
+    "prompt"         to "💬",
+    "template"       to "📄",
+    "workflow"       to "🔄",
+    "connector-pack" to "🔗",
+    "operator"       to "👤",
+    "checkpoint"     to "🔒",
+    "policy"         to "📋",
+)
+
+private val KIND_LABELS = mapOf(
+    "skill" to "Skill",
+    "mcp-server" to "MCP Server",
+    "bundle" to "Bundle",
+    "tool" to "Tool",
+    "prompt" to "Prompt",
+    "template" to "Template",
+    "workflow" to "Workflow",
+    "connector-pack" to "Connector Pack",
+    "operator" to "Operator",
+    "checkpoint" to "Checkpoint",
+    "policy" to "Policy",
+)
+
+private fun kindDisplay(kind: String): String = KIND_LABELS[kind] ?: kind
+
 /**
  * Installed capabilities panel — reads ~/.capacium/registry.json
  * and displays capabilities grouped by kind in a tree.
@@ -57,7 +87,7 @@ class CapaciumInstalledPanel(private val project: Project) {
         val byKind = caps.groupBy { it["kind"] as? String ?: "skill" }
         byKind.forEach { (kind, list) ->
             val icon = KIND_ICONS[kind] ?: "◻"
-            val kindNode = DefaultMutableTreeNode("$icon $kind (${list.size})")
+            val kindNode = DefaultMutableTreeNode("$icon ${kindDisplay(kind)} (${list.size})")
             list.forEach { cap ->
                 val name = "${cap["owner"]}/${cap["name"]}"
                 val ver = cap["version"] ?: "?"

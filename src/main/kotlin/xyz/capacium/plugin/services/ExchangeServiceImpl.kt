@@ -46,6 +46,8 @@ data class SearchResults(
 interface ExchangeService {
     fun search(query: String, kind: String? = null, limit: Int = 30): SearchResults
     fun getCapability(owner: String, name: String): CapabilityListing?
+    fun getTrustBadges(): Map<String, String>
+    fun getKindLabels(): Map<String, String>
     var exchangeUrl: String
 }
 
@@ -92,7 +94,62 @@ class ExchangeServiceImpl : ExchangeService {
         }
     }
 
-    // ── HTTP ──────────────────────────────────────────────────────────────────
+    // ── Canonical labels (lazy, cached) ────────────────────────────────────────
+
+    @Volatile
+    private var trustBadgesCache: Map<String, String>? = null
+
+    @Volatile
+    private var kindLabelsCache: Map<String, String>? = null
+
+    override fun getTrustBadges(): Map<String, String> {
+        trustBadgesCache?.let { return it }
+        return try {
+            val body = httpGet("$exchangeUrl/v2/trust/badges") ?: return fallbackTrustBadges()
+            val obj = json.parseToJsonElement(body).jsonObject
+            val result = obj.entries.associate { it.key to it.value.jsonPrimitive.content }
+            trustBadgesCache = result
+            result
+        } catch (e: Exception) {
+            LOG.warn("Failed to fetch trust badges: ${e.message}")
+            fallbackTrustBadges()
+        }
+    }
+
+    override fun getKindLabels(): Map<String, String> {
+        kindLabelsCache?.let { return it }
+        return try {
+            val body = httpGet("$exchangeUrl/v2/labels/kinds") ?: return fallbackKindLabels()
+            val obj = json.parseToJsonElement(body).jsonObject
+            val result = obj.entries.associate { it.key to it.value.jsonPrimitive.content }
+            kindLabelsCache = result
+            result
+        } catch (e: Exception) {
+            LOG.warn("Failed to fetch kind labels: ${e.message}")
+            fallbackKindLabels()
+        }
+    }
+
+    private fun fallbackTrustBadges(): Map<String, String> = mapOf(
+        "discovered" to "Discovered",
+        "audited" to "Audited",
+        "verified" to "Verified",
+        "signed" to "Signed",
+    )
+
+    private fun fallbackKindLabels(): Map<String, String> = mapOf(
+        "skill" to "Skill",
+        "mcp-server" to "MCP Server",
+        "bundle" to "Bundle",
+        "tool" to "Tool",
+        "prompt" to "Prompt",
+        "template" to "Template",
+        "workflow" to "Workflow",
+        "connector-pack" to "Connector Pack",
+        "operator" to "Operator",
+        "checkpoint" to "Checkpoint",
+        "policy" to "Policy",
+    )
 
     private fun httpGet(url: String): String? {
         return try {

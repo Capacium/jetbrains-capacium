@@ -48,17 +48,44 @@ class CapaciumSearchPanel(private val project: Project) {
     private lateinit var statusLabel: JBLabel
     private val listModel = DefaultListModel<CapabilityListing>()
 
+    private var trustBadges: Map<String, String> = emptyMap()
+    private var kindLabels: Map<String, String> = emptyMap()
+
+    @Volatile
+    private var labelsLoaded = false
+
+    private fun loadLabels() {
+        if (labelsLoaded) return
+        try {
+            val svc = ExchangeServiceImpl.getInstance()
+            trustBadges = svc.getTrustBadges()
+            kindLabels = svc.getKindLabels()
+            labelsLoaded = true
+        } catch (_: Exception) {
+            // Use fallback display names (raw keys) if Exchange unreachable
+        }
+    }
+
+    fun kindDisplay(kind: String): String = kindLabels[kind] ?: kind
+    fun trustDisplay(state: String): String = trustBadges[state] ?: state
+
     private fun buildPanel(): JPanel {
+        loadLabels()
         val panel = JPanel(BorderLayout(4, 4))
 
         // ── Search bar ─────────────────────────────────────────────────────
         val topBar = JPanel(FlowLayout(FlowLayout.LEFT, 4, 0))
         queryField = JBTextField(20)
         queryField.emptyText.text = "Search capabilities…"
-        kindCombo = ComboBox(arrayOf(
-            "All kinds", "skill", "mcp-server", "bundle", "tool",
-            "prompt", "workflow", "operator", "checkpoint", "policy",
-        ))
+        kindCombo = ComboBox(arrayOf("All kinds") + kindLabels.keys.toTypedArray())
+
+        // Custom renderer to show display labels in the dropdown
+        kindCombo.setRenderer { _, value, _, _, _ ->
+            val label = if (value == "All kinds") "All kinds" else kindDisplay(value)
+            JLabel(label).apply {
+                border = BorderFactory.createEmptyBorder(2, 4, 2, 4)
+            }
+        }
         val searchBtn = JButton("Search")
         topBar.add(queryField)
         topBar.add(kindCombo)
@@ -167,6 +194,14 @@ private class CapabilityListCellRenderer : ListCellRenderer<CapabilityListing> {
         val quality = cap.qualityScore?.let { "Q${it.toInt()}" } ?: ""
         val stars = if (cap.githubStars > 0) "★${cap.githubStars}" else ""
 
+        // Resolve canonical labels
+        val trustLabel = try {
+            ExchangeServiceImpl.getInstance().getTrustBadges()[cap.trustState] ?: cap.trustState
+        } catch (_: Exception) { cap.trustState }
+        val kindLabel = try {
+            ExchangeServiceImpl.getInstance().getKindLabels()[cap.kind] ?: cap.kind
+        } catch (_: Exception) { cap.kind }
+
         val panel = JPanel(BorderLayout(4, 0))
         panel.border = BorderFactory.createEmptyBorder(4, 6, 4, 6)
         if (isSelected) {
@@ -176,7 +211,7 @@ private class CapabilityListCellRenderer : ListCellRenderer<CapabilityListing> {
         val title = JBLabel("$icon ${cap.canonicalName}")
         title.font = title.font.deriveFont(Font.BOLD, 12f)
 
-        val sub = JBLabel("${cap.shortDescription.take(70)}  $stars $quality  ${cap.trustState}")
+        val sub = JBLabel("${cap.shortDescription.take(70)}  $stars $quality  $kindLabel · $trustLabel")
         sub.font = sub.font.deriveFont(Font.PLAIN, 10f)
         sub.foreground = trustColor
 
