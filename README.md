@@ -1,5 +1,9 @@
 # JetBrains — Capacium Plugin
 
+> [!NOTE]
+> **Public mirror.** The canonical repository is hosted on our self-hosted git.
+> This GitHub copy is a read-only mirror kept in sync for visibility and installation.
+
 Search and install AI agent capabilities from the Capacium marketplace in any JetBrains IDE.
 
 ## Features
