@@ -33,3 +33,9 @@ gradle buildPlugin
 ## License
 
 MIT
+
+## Development
+
+Canonical repository: **self-hosted Forgejo** — `git.langevc.com/capacium/jetbrains-capacium`
+(`git clone git@git.langevc.com:capacium/jetbrains-capacium.git`). Develop against the Forgejo
+clone and open pull requests there. The GitHub copy is a read-only mirror.
